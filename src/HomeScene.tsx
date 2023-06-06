@@ -43,6 +43,9 @@ const DEMOS = [
     screenName: 'DesignCourse',
   },
 ];
+const data = [
+  {rankingtable: 1}
+];
 
 interface ListItemProps {
   data: ListRenderItemInfo<(typeof DEMOS)[0]>;
@@ -125,10 +128,24 @@ const HomeScene: React.FC = () => {
       showToast('Coming soon...');
     }
   };
+  const [rankings, setRankings] = useState([]);
+  useEffect(() => {
+    fetch('http://34.64.150.171/get_rank.php')
+      .then(response => response.json())
+      .then(jsonData => {
+        // 받은 JSON 데이터를 처리하는 로직
+        setRankings(jsonData);
+        console.log(jsonData);
+      })
+      .catch(error => {
+        // 에러 처리
+        console.error(error);
+      });
+  }, []);
 
   return (
     <SafeAreaView
-      style={{ flex: 1, marginTop: inset.top ? inset.top : 24 }}
+      style={{ flex: 1, marginTop: inset.top ? inset.top : 24, backgroundColor: 'white' }}
       edges={['left', 'right']}
     >
       <View style={styles.headerContainer}>
@@ -140,35 +157,39 @@ const HomeScene: React.FC = () => {
         >
           <Icon name="menu" size={25} color="black" />
         </MyPressable>
-        <Text style={styles.headerText}>React-Native UI</Text>
-        <MyPressable
-          style={{ marginRight: 8 }}
-          android_ripple={{ color: 'grey', radius: 20, borderless: true }}
-          touchOpacity={0.6}
-          onPress={() => setGrid(!isGrid)}
-        >
-          <Icon
-            name={isGrid ? 'dashboard' : 'view-agenda'}
-            size={25}
-            color="black"
-          />
-        </MyPressable>
+        <Text style={styles.headerText}>TODAY SOCCER</Text>
+        
       </View>
-
       <FlatList
-        key={isGrid ? 'G' : 'L'}
-        style={{ marginHorizontal: 6 }}
-        contentContainerStyle={{ flexGrow: 1, paddingBottom: inset.bottom }}
-        numColumns={isGrid ? 2 : 1}
-        showsVerticalScrollIndicator={false}
-        data={DEMOS}
-        renderItem={data => (
-          <ListItem
-            {...{ data, isGrid }}
-            onScreenClicked={() => onTemplateClicked(data.item)}
-          />
+        data={data}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.container}>
+            <Text style={styles.title}>프리미어리그 랭킹</Text>
+            <View style={styles.table}>
+              <View style={styles.tableRow}>
+                <Text style={styles.tableHeader}>순위</Text>
+                <Text style={styles.tableHeader}>팀</Text>
+                <Text style={styles.tableHeader}>승</Text>
+                <Text style={styles.tableHeader}>무</Text>
+                <Text style={styles.tableHeader}>패</Text>
+                <Text style={styles.tableHeader}>골득실</Text>
+                <Text style={styles.tableHeader}>승점</Text>
+              </View>
+              {rankings.map((ranking, index) => (
+                <View style={styles.tableRow} key={index}>
+                  <Text style={styles.tableCell}>{ranking.rank}</Text>
+                  <Text style={styles.tableCell}>{ranking.team}</Text>
+                  <Text style={styles.tableCell}>{ranking.won}</Text>
+                  <Text style={styles.tableCell}>{ranking.draw}</Text>
+                  <Text style={styles.tableCell}>{ranking.lost}</Text>
+                  <Text style={styles.tableCell}>{ranking.gd}</Text>
+                  <Text style={styles.tableCell}>{ranking.points}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
         )}
-        keyExtractor={item => item.name}
       />
     </SafeAreaView>
   );
@@ -189,6 +210,7 @@ const styles = StyleSheet.create({
     fontFamily: 'WorkSans-Bold',
     textAlign: 'center',
     textAlignVertical: 'center',
+    paddingRight: 20,
   },
   demoImg: {
     width: '100%',
@@ -199,6 +221,37 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(128,128,128,0.1)',
     borderRadius: 4,
+  },
+  container: {
+    flex: 1,
+    padding: 20,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  table: {
+    borderWidth: 1,
+    borderColor: 'black',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    backgroundColor: '#f2f2f2',
+    borderWidth:1,
+    borderColor: 'rgba(128,128,128,0.5)',
+  },
+  tableHeader: {
+    flex: 1,
+    padding: 10,
+    fontWeight: 'bold',
+    fontSize: 11,
+  },
+  tableCell: {
+    flex: 1,
+    padding: 10,
   },
 });
 

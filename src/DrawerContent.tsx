@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -22,6 +22,10 @@ import Animated, {
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import MyPressable from './components/MyPressable';
 import { AppImages } from './assets';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Login from './Login';
+import RNRestart from 'react-native-restart';
+import axios from 'axios';
 
 type DrawerScene = {
   label: string;
@@ -35,17 +39,17 @@ interface DrawerItemProps extends DrawerScene {
 }
 
 const DRAWER_SCENES: DrawerScene[] = [
-  { label: 'Home', icon: 'home', routeKey: 'home' },
+  { label: '홈', icon: AppImages.home, isAssetIcon: true, routeKey: 'home' },
   {
-    label: 'Help',
-    icon: AppImages.support_icon,
+    label: '응원 팀',
+    icon: AppImages.cheering,
     isAssetIcon: true,
     routeKey: 'help',
   },
-  { label: 'Feedback', icon: 'help', routeKey: 'feedback' },
-  { label: 'Invite Friend', icon: 'group', routeKey: 'invite_friend' },
-  { label: 'Rate the app', icon: 'share' },
-  { label: 'About Us', icon: 'info' },
+  { label: '내 정보', icon: AppImages.user, isAssetIcon: true, routeKey: 'feedback' },
+  //{ label: 'Invite Friend', icon: 'group', routeKey: 'invite_friend' },
+  //{ label: 'Rate the app', icon: 'share' },
+  //{ label: 'About Us', icon: 'info' },
 ];
 
 const getActiveRouteState = (
@@ -124,6 +128,86 @@ const DrawerItemRow: React.FC<
 };
 
 const DrawerContent: React.FC<DrawerContentComponentProps> = props => {
+  const [id, setid] = useState('');
+  const [teamimg, setteamimg] = useState('');
+  const [logoimg, setlogoimg] = useState(AppImages.EPL);
+
+  useEffect(() => {
+    getdata();
+  }, []);
+  
+  const getdata =async () => {
+    const value = await AsyncStorage.getItem('id'); // 'key'에 해당하는 데이터 가져오기
+    const teamvalue = await AsyncStorage.getItem('team'); // 'key'에 해당하는 데이터 가져오기
+    if (value !== null && teamvalue !== null) {
+      // 데이터가 존재할 경우 처리
+      setid(value); // 가져온 데이터를 상태에 저장
+      setteamimg(teamvalue);
+      switch (teamvalue){
+        case 'MCI':
+          setlogoimg(AppImages.MCI);
+          break;
+        case 'ARS':
+          setlogoimg(AppImages.ARS);
+          break;
+        case 'MUM':
+          setlogoimg(AppImages.MUM);
+          break;
+        case 'NEW':
+          setlogoimg(AppImages.NEW);
+          break;
+        case 'LIV':
+          setlogoimg(AppImages.LIV);
+          break;
+        case 'BHA':
+          setlogoimg(AppImages.BHA);
+          break;
+        case 'AVL':
+          setlogoimg(AppImages.AVL);
+          break;
+        case 'TOT':
+          setlogoimg(AppImages.TOT);
+          break;
+        case 'BRE':
+          setlogoimg(AppImages.BRE);
+          break;
+        case 'FUL':
+          setlogoimg(AppImages.FUL);
+          break;
+        case 'CRY':
+          setlogoimg(AppImages.CRY);
+          break;
+        case 'CHE':
+          setlogoimg(AppImages.CHE);
+          break;
+        case 'WOL':
+          setlogoimg(AppImages.WOL);
+          break;
+        case 'WHU':
+          setlogoimg(AppImages.WHU);
+          break;
+        case 'BOU':
+          setlogoimg(AppImages.BOU);
+          break;
+        case 'NFO':
+          setlogoimg(AppImages.NFO);
+          break;
+        case 'EVE':
+          setlogoimg(AppImages.EVE);
+          break;
+        case 'LEI':
+          setlogoimg(AppImages.LEI);
+          break;
+        case 'LEE':
+          setlogoimg(AppImages.LEE);
+          break;
+        case 'SOU':
+          setlogoimg(AppImages.SOU);
+          break;
+      }
+    }
+  };
+
   const window = useWindowDimensions();
   const rowWidth = (window.width * 0.75 * 80) / 100;
   const progress = useDrawerProgress();
@@ -150,6 +234,14 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = props => {
     };
   }, []);
 
+  const handleSignOut = async () => {
+    await AsyncStorage.setItem('id', '');
+    await AsyncStorage.setItem('password', '');
+    await AsyncStorage.setItem('team', '');
+    RNRestart.Restart();
+  };
+
+
   return (
     <SafeAreaView edges={['right', 'bottom', 'left']} style={{ flex: 1 }}>
       <View style={{ padding: 16, marginTop: 40 }}>
@@ -158,10 +250,10 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = props => {
         >
           <Animated.Image
             style={styles.drawerAvatarStyle}
-            source={AppImages.userImage}
+            source={logoimg}
           />
         </Animated.View>
-        <Text style={styles.userName}>Chris Hemsworth</Text>
+        <Text style={styles.userName}>{id} ({teamimg})</Text>
       </View>
       <View style={styles.divider} />
 
@@ -177,7 +269,9 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = props => {
         ))}
       </DrawerContentScrollView>
 
-      <MyPressable style={styles.signOutBtnStyle}>
+      <MyPressable style={styles.signOutBtnStyle}
+        onPress={handleSignOut}
+      >
         <Text style={styles.signOutText}>Sign Out</Text>
         <Icon name="power-settings-new" size={20} color="red" />
       </MyPressable>
@@ -221,6 +315,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
+    resizeMode: "contain",
   },
   avatarShadow: {
     backgroundColor: 'white',
