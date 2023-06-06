@@ -238,6 +238,8 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = props => {
     await AsyncStorage.setItem('id', '');
     await AsyncStorage.setItem('password', '');
     await AsyncStorage.setItem('team', '');
+    await AsyncStorage.setItem('loginteam', '');
+    await AsyncStorage.setItem('loginid', '');
     RNRestart.Restart();
   };
 

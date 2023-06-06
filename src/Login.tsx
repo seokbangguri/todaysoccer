@@ -176,6 +176,7 @@ const Login = () => {
           />
           <TextInput
             style={styles.input}
+            secureTextEntry={true}
             placeholder="비밀번호"
             onChangeText={(text) => setDescription(text)}
             value={description}
@@ -207,12 +208,14 @@ const Login = () => {
             value={title}
           />
           <TextInput
-            style={styles.input}
+            style={[styles.input, {marginBottom: 0}]}
+            secureTextEntry={true}
             placeholder="비밀번호"
             onChangeText={(text) => setDescription(text)}
             value={description}
           />
           <SelectList
+            boxStyles={{marginTop: 20}}
             setSelected={(val:any) => setSelected(val)}
             data={data}
             save="value"
